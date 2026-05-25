@@ -1,53 +1,53 @@
 /*
-// 1. Prevent spawning multiple calculator zombies at once
-if (document.getElementById('zombie-calc-ui')) return;
+// The Hub passes 'appId' into this scope when evaluating the function
+const OS_ID = appId; 
 
-// 2. Create the floating UI container
+// 1. Build the App UI
 const calcUI = document.createElement('div');
-calcUI.id = 'zombie-calc-ui';
+calcUI.id = `app-window-${OS_ID}`;
 Object.assign(calcUI.style, {
-    position: 'fixed',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    backgroundColor: '#ffffff',
-    border: '2px solid #333',
-    borderRadius: '12px',
-    padding: '20px',
-    width: '260px',
-    boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
-    zIndex: '1000000',
-    fontFamily: 'sans-serif',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '12px'
+    position: 'fixed', top: '15%', left: '50%', transform: 'translateX(-50%)',
+    width: '280px', zIndex: 2147483647, background: '#2c3e50', color: 'white',
+    padding: '20px', borderRadius: '15px', boxShadow: '0 10px 30px rgba(0,0,0,0.6)',
+    fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column', gap: '10px'
 });
 
-// 3. Inject the HTML for the inputs and buttons
 calcUI.innerHTML = `
-    <div style="display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 18px;">
-        <span>🧮 Zombie Calc</span>
-        <span id="zombie-calc-close" style="cursor: pointer; color: #ff4444; font-size: 20px;">✖</span>
+    <h3 style="margin:0;">🧮 Calculator</h3>
+    <input type="text" id="calcInput_${OS_ID}" placeholder="e.g. 10 * 5 + 2" style="padding:12px; border-radius:5px; border:none; font-size:16px; outline:none;">
+    <button id="calcBtn_${OS_ID}" style="padding:12px; background:#27ae60; color:white; border:none; border-radius:5px; font-weight:bold; font-size:16px;">Calculate</button>
+    <div id="calcResult_${OS_ID}" style="padding:15px; background:#34495e; border-radius:5px; font-size:18px; text-align:center;">Result: 0</div>
+    <div style="display:flex; gap:10px; margin-top:5px;">
+        <button id="hideCalc_${OS_ID}" style="flex:1; padding:10px; background:#7f8c8d; border:none; border-radius:5px; color:white;">Minimize</button>
+        <button id="closeCalc_${OS_ID}" style="flex:1; padding:10px; background:#c0392b; border:none; border-radius:5px; color:white;">Kill App</button>
     </div>
-    <input type="text" id="zombie-calc-input" placeholder="e.g. 10 * 5 + 2" style="padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 6px;">
-    <button id="zombie-calc-btn" style="padding: 12px; font-size: 16px; background-color: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer;">Calculate</button>
-    <div id="zombie-calc-result" style="font-size: 20px; font-weight: bold; text-align: center; color: #222; min-height: 24px;"></div>
 `;
-
 document.body.appendChild(calcUI);
 
-// 4. Wire up the logic
-document.getElementById('zombie-calc-close').onclick = () => calcUI.remove();
-
-document.getElementById('zombie-calc-btn').onclick = () => {
-    const expression = document.getElementById('zombie-calc-input').value;
-    const resultDiv = document.getElementById('zombie-calc-result');
+// 2. Core Calculator Logic
+document.getElementById(`calcBtn_${OS_ID}`).onclick = () => {
+    const exp = document.getElementById(`calcInput_${OS_ID}`).value;
+    const resDiv = document.getElementById(`calcResult_${OS_ID}`);
     try {
-        // Evaluate safely
-        const result = new Function('return ' + expression)();
-        resultDiv.innerText = '= ' + result;
-    } catch (e) {
-        resultDiv.innerText = 'Mutated! (Error) 🧟';
+        resDiv.innerText = "Result: " + new Function('return ' + exp)();
+    } catch(e) { 
+        resDiv.innerText = "Error 🧟"; 
     }
 };
+
+// 3. Lifecycle Management (The OS Features)
+document.getElementById(`hideCalc_${OS_ID}`).onclick = () => {
+    calcUI.style.display = 'none'; // Keep DOM, hide visual
+};
+
+document.getElementById(`closeCalc_${OS_ID}`).onclick = () => { 
+    calcUI.remove(); // Destroy DOM
+    // Tell the Hub that this zombie is back in the grave
+    window.dispatchEvent(new CustomEvent('AppKilled', { detail: { id: OS_ID } }));
+};
+
+// 4. Listen for the Hub trying to awaken us from a minimized state
+window.addEventListener(`Focus_${OS_ID}`, () => {
+    calcUI.style.display = 'flex';
+});
 */
