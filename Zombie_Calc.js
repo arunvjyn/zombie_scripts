@@ -1,8 +1,7 @@
 /*
-// The Hub passes 'appId' into this scope when evaluating the function
 const OS_ID = appId; 
 
-// 1. Build the App UI
+// 1. Build UI
 const calcUI = document.createElement('div');
 calcUI.id = `app-window-${OS_ID}`;
 Object.assign(calcUI.style, {
@@ -24,7 +23,7 @@ calcUI.innerHTML = `
 `;
 document.body.appendChild(calcUI);
 
-// 2. Core Calculator Logic
+// 2. Logic
 document.getElementById(`calcBtn_${OS_ID}`).onclick = () => {
     const exp = document.getElementById(`calcInput_${OS_ID}`).value;
     const resDiv = document.getElementById(`calcResult_${OS_ID}`);
@@ -35,19 +34,18 @@ document.getElementById(`calcBtn_${OS_ID}`).onclick = () => {
     }
 };
 
-// 3. Lifecycle Management (The OS Features)
+// 3. Lifecycle Management via OS API
 document.getElementById(`hideCalc_${OS_ID}`).onclick = () => {
-    calcUI.style.display = 'none'; // Keep DOM, hide visual
+    calcUI.style.display = 'none'; 
 };
 
 document.getElementById(`closeCalc_${OS_ID}`).onclick = () => { 
-    calcUI.remove(); // Destroy DOM
-    // Tell the Hub that this zombie is back in the grave
-    window.dispatchEvent(new CustomEvent('AppKilled', { detail: { id: OS_ID } }));
+    calcUI.remove(); // Erase DOM
+    os.reportDeath(OS_ID); // Direct syscall: Tell the Hub we are dead
 };
 
-// 4. Listen for the Hub trying to awaken us from a minimized state
-window.addEventListener(`Focus_${OS_ID}`, () => {
+// 4. Register focus command with the OS API
+os.registerFocus(OS_ID, () => {
     calcUI.style.display = 'flex';
 });
 */
