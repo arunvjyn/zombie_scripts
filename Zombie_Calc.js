@@ -6,10 +6,14 @@ const calcUI = document.createElement('div');
 calcUI.id = `app-window-${OS_ID}`;
 Object.assign(calcUI.style, {
     position: 'fixed', top: '15%', left: '50%', transform: 'translateX(-50%)',
-    width: '280px', zIndex: 2147483647, background: '#2c3e50', color: 'white',
+    width: '280px', zIndex: os.getTopZIndex(), background: '#2c3e50', color: 'white',
     padding: '20px', borderRadius: '15px', boxShadow: '0 10px 30px rgba(0,0,0,0.6)',
     fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column', gap: '10px'
 });
+
+// Smart Window Manager: Bring to front when the user clicks/taps anywhere on the app
+calcUI.onmousedown = () => calcUI.style.zIndex = os.getTopZIndex();
+calcUI.ontouchstart = () => calcUI.style.zIndex = os.getTopZIndex();
 
 calcUI.innerHTML = `
     <h3 style="margin:0;">🧮 Calculator</h3>
@@ -34,18 +38,28 @@ document.getElementById(`calcBtn_${OS_ID}`).onclick = () => {
     }
 };
 
-// 3. Lifecycle Management via OS API
+// 3. App Controls
 document.getElementById(`hideCalc_${OS_ID}`).onclick = () => {
     calcUI.style.display = 'none'; 
 };
 
 document.getElementById(`closeCalc_${OS_ID}`).onclick = () => { 
     calcUI.remove(); // Erase DOM
-    os.reportDeath(OS_ID); // Direct syscall: Tell the Hub we are dead
+    os.reportDeath(OS_ID); // Trigger the Hub's teardown process
 };
 
-// 4. Register focus command with the OS API
-os.registerFocus(OS_ID, () => {
-    calcUI.style.display = 'flex';
-});
+// 4. Register Advanced Lifecycle
+os.registerLifecycle(
+    OS_ID, 
+    // Focus Hook: What to do when re-launched from the Hub
+    () => { 
+        calcUI.style.display = 'flex';
+        calcUI.style.zIndex = os.getTopZIndex(); // Pop to front
+    },
+    // Teardown Hook: Deep cleaning (clearIntervals, remove event listeners)
+    () => {
+        // The calculator doesn't have background timers, but if it did, we clear them here!
+        console.log(`${OS_ID} memory cleanly wiped.`);
+    }
+);
 */
